@@ -1,0 +1,8 @@
+const state = {
+  pages : {
+
+  },
+  doodads : {
+
+  }
+}
