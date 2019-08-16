@@ -1,115 +1,96 @@
 const path = require('path');
-const webpack = require('webpack')
-const { VueLoaderPlugin } = require('vue-loader')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-
+const webpack = require('webpack');
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
   mode: 'development',
-  devtool: 'sourcemap',
+  entry: './site/app.js',
+  devtool: 'eval-source-map',
   devServer: {
-    watchOptions : {
-      watch: true,
-      aggregateTimeout: 200,
-      poll: 1000
-    }
+    contentBase: './dist',
+    hot: true
   },
-  entry: ['webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000', './ui/site/entry.js'],
-  output: {
-    path: path.resolve(__dirname + '/dist'),
-    publicPath: '/',
-    filename: 'entry_bundle.js'
-  },
-  resolve : {
-    extensions : ['.js', '.vue', '.json'],
+  resolve: {
     alias: {
-      'vue$' : 'vue/dist/vue.runtime.js'
+      'vue$': 'vue/dist/vue.runtime.js',
+      '@src': './site/src' 
+    },
+    extensions: ['.vue', '.js', '.scss', '.css']
+  },
+  output: {
+    filename: '[name].[hash].js',
+    path: path.resolve(__dirname, 'dist')
+  },
+  optimization : {
+    moduleIds: 'hashed',
+    runtimeChunk: 'single',
+    splitChunks: {
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all'
+        }
+      }
     }
   },
   module: {
     rules: [
       {
-        test: /\.vue$/,
-        loader: 'vue-loader',
-        options : {
-          hotReload: true
-        }
-      },
-      {
-        test: /\.js$/,
+        test: /\.vue/,
         use: [
-          {
-            loader: 'babel-loader',
-            options: {
-              presets: [
-              require('@babel/preset-env').default
-              ],
-              plugins: [
-                require('@babel/plugin-syntax-dynamic-import').default
-              ]
-            }
-          }
-        ],
-        exclude: file => (
-          /node_modules/.test(file)
-            && !/\.vue\.js/.test(file)
-        )
-      },
-      {
-        test: /\.scss$/,
-        use: [
-          'vue-style-loader',
-          {
-            loader: 'css-loader',
-             options : {
-              importLoaders: 1
-            }
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              config: {
-                path: './'
-              }
-            }
-          }, 
-          'sass-loader'
+          'vue-loader'
         ]
       },
       {
         test: /\.css$/,
         use: [
-          'vue-style-loader', 
+          'vue-style-loader',
           {
-            loader: 'css-loader',
+            loader:'css-loader',
             options: {
               importLoaders: 1
             }
           },
-          {
-            loader: 'postcss-loader',
-            options: {
-              config: {
-                path: './'
-              }
-            }
-          }
+          'postcss-loader'
         ]
       },
       {
-        test: /\html$/,
-        use: [{loader: "html-loader"}]
+        test: /\.scss$/,
+        use: [
+          'vue-style-loader',
+          'css-loader',
+          'sass-loader'
+        ]
+      },
+      {
+        test: /\.js$/,
+        loader: 'babel-loader',
+        exclude: file => (
+          /node_modules/.test(file) &&
+          !/\.vue\.js/.test(file)
+        )
+      },
+      {
+        test: /\.(png|svg|jpg|gif)$/,
+        use: [
+          'file-loader'
+        ]
+      },
+      {
+        test: /\.(woff|woff2|eot|ttf|otf)$/,
+        use: 'file-loader'
       }
     ]
   },
   plugins: [
-    new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
-      template: './ui/site/index.html',
+      template: path.resolve(__dirname, 'site/index.html'),
       filename: 'index.html'
     }),
-    new webpack.HotModuleReplacementPlugin(),
+    new CleanWebpackPlugin(),
     new VueLoaderPlugin()
   ]
-};
+}
