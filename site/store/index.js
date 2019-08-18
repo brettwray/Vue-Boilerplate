@@ -7,7 +7,7 @@ import baseState from './modules/base';
 
 export default new Vuex.Store({
   modules: {
-    baseState
+    baseState,
   }
 })
 

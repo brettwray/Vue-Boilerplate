@@ -1,11 +1,10 @@
 <template>
-<div>app.vue</div>
+<div id="app__wrapper">
+  <router-view></router-view>
+</div>
 </template>
 <script>
 export default {
   name: 'app_wrapper'
 }
 </script>
-<style lang="scss" scoped>
-
-</style>

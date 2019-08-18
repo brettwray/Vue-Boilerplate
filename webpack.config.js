@@ -7,15 +7,13 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 module.exports = {
   mode: 'development',
   entry: './site/app.js',
-  devtool: 'eval-source-map',
-  devServer: {
-    contentBase: './dist',
-    hot: true
-  },
   resolve: {
     alias: {
       'vue$': 'vue/dist/vue.runtime.js',
-      '@src': './site/src' 
+      '@site': path.resolve(__dirname, 'site'),
+      '@assets': path.resolve(__dirname, 'site/assets'),
+      '@styles': path.resolve(__dirname, 'site/styles'),
+      'Pages' : path.resolve(__dirname, 'site/components/pages')
     },
     extensions: ['.vue', '.js', '.scss', '.css']
   },
@@ -42,32 +40,19 @@ module.exports = {
         test: /\.vue/,
         use: [
           'vue-loader'
-        ]
-      },
-      {
-        test: /\.css$/,
-        use: [
-          'vue-style-loader',
-          {
-            loader:'css-loader',
-            options: {
-              importLoaders: 1
-            }
-          },
-          'postcss-loader'
-        ]
-      },
-      {
-        test: /\.scss$/,
-        use: [
-          'vue-style-loader',
-          'css-loader',
-          'sass-loader'
-        ]
+        ],
+        include: path.resolve(__dirname, 'site')
       },
       {
         test: /\.js$/,
-        loader: 'babel-loader',
+        use: {
+          loader: 'babel-loader',
+          options: {
+            plugins: [
+              '@babel/plugin-syntax-dynamic-import'
+            ]
+          }
+        },
         exclude: file => (
           /node_modules/.test(file) &&
           !/\.vue\.js/.test(file)
